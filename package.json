@@ -4,11 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "npm link ."
   },
   "bin": "src/index.js",
-  "author": "",
+  "author": "yezzle",
   "license": "ISC",
+  "repository":  "https://github.com/Yezzle/ts-node.git",
   "dependencies": {
     "typescript": "^4.5.4"
   }

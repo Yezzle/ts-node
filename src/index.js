@@ -34,32 +34,34 @@ function getTsConfig(){
     }
     return {}
 }
+
+function isCommand(filepath){
+    const commands = fs.readdirSync(path.resolve(__dirname, 'commands'));
+    const inputCommand = filepath + '.js'
+    return commands.includes(inputCommand);
+}
+
 // 如果有文件则执行文件, 否则启动交互式命令行
 if(filePath){
     const fullPath = path.resolve(cwd, filePath)
-    require(fullPath)
+    if(isCommand(filePath)){
+        runmodule(path.resolve(__dirname, 'commands',  filePath + '.js'), process.argv.slice(3))
+    } else {
+        runmodule(fullPath, process.argv.slice(3))
+    }
 } else { 
-    const r = repl.start({
-        prompt: ':--> ',
-        eval: tsEval
-    })
-    // 可定义环境变量
-    Object.defineProperty(r.context, 'who', {
-        configurable: false,
-        enumerable: true,
-        value: 'Hello ts'
-    })
-    // 编译并执行ts语句
-    function tsEval(cmd, context, filename, callback){
-        const { outputText } = ts.transpileModule(cmd, {
-            compilerOptions: {
-                strict: true,
-                sourceMap: false,
+    require('./repl.js')()
+}
+
+function runmodule(modulePath, args){
+    if(fs.existsSync(modulePath)){
+        const exp = require(modulePath)
+        if(exp && Object.prototype.toString.call(exp) === '[object Object]'){
+            if(exp.apply && Object.prototype.toString.call(exp.apply) === '[object Function]'){
+                exp.apply.apply(null, args)
             }
-        })
-        // vm模块可以在指定上下文中执行js code
-        const result = vm.runInContext(outputText, r.context)
-        // 执行回调之后交互式命令行才进入准备输入状态
-        callback(null, result)
+        } else if(Object.prototype.toString.call(exp) === '[object Function]'){
+            exp.apply(null, args)
+        }
     }
 }
