@@ -8,6 +8,7 @@ const vm = require('vm');
 let tsconfigfile = '.tsconfig.json';
 const filePath = process.argv[2]
 const cwd = process.cwd();
+const log = (...args) => console.log('[ng]', ...args)
 
 // 设置ts文件的require hook
 Module._extensions['.ts'] = function(module, filename){
@@ -54,6 +55,7 @@ if(filePath){
 }
 
 function runmodule(modulePath, args){
+    log('start run module: ', modulePath)
     if(fs.existsSync(modulePath)){
         const exp = require(modulePath)
         if(exp && Object.prototype.toString.call(exp) === '[object Object]'){
@@ -63,5 +65,7 @@ function runmodule(modulePath, args){
         } else if(Object.prototype.toString.call(exp) === '[object Function]'){
             exp.apply(null, args)
         }
+    } else {
+        log('module not exist')
     }
 }
